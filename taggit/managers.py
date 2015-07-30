@@ -183,11 +183,15 @@ class _TaggableManager(models.Manager):
 
         tag_objs.update(existing)
 
-        for new_tag in tags_to_create:
-            tag_objs.add(self.through.tag_model().objects.create(name=new_tag))
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
 
-        for tag in tag_objs:
-            self.through.objects.get_or_create(tag=tag, **self._lookup_kwargs())
+            for new_tag in tags_to_create:
+                tag_objs.add(self.through.tag_model().objects.create(name=new_tag))
+
+            for tag in tag_objs:
+                self.through.objects.get_or_create(tag=tag, **self._lookup_kwargs())
 
     @require_instance_manager
     def names(self):
